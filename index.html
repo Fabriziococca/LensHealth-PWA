@@ -3,11 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <title>LensTracker</title>
+
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+
     <link rel="stylesheet" href="styles.css">
-    <link rel="manifest" href="data:application/json;base64,ewogICJkZWZhdWx0X2xvY2FsZSI6ICJlcyIsCiAgIm5hbWUiOiAiTGVuc1RyYWNrZXIiLAogICJzaG9ydF9uYW1lIjogIkxlbnNlcyIsCiAgImRlc2NyaXB0aW9uIjogIkNvbnRyb2wgZGUgdGllbXBvIGRlIGxlbnRlcyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzBmMTcyMCIsCiAgInRoZW1lX2NvbG9yIjogIiMwZmxmYjUiCn0=">
+
+    <link rel="manifest" href="manifest.json">
 </head>
 <body>
+
     <div class="container">
         <h1>LensTracker</h1>
         
@@ -23,10 +33,22 @@
         <div id="idleState">
             <p>No tenés los lentes puestos</p>
             <button class="btn btn-put" id="btnPut">Me los puse AHORA</button>
-            <input type="time" id="customTime" class="time-input" aria-label="Ingresar hora manual">
+            
+            <div class="manual-entry">
+                <label for="customTime">¿Te los pusiste antes?</label>
+                <input type="time" id="customTime" class="time-input">
+            </div>
         </div>
     </div>
 
     <script src="script.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW no registrado', err));
+            });
+        }
+    </script>
 </body>
 </html>
