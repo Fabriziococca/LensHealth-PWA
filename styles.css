@@ -7,6 +7,7 @@
     --danger: #fb7185;
     --text: #f8fafc;
     --text-muted: #94a3b8;
+    --border: #334155;
 }
 
 body {
@@ -70,7 +71,7 @@ h3 {
     transition: stroke-dashoffset 1s linear, stroke 0.5s ease;
     transform: rotate(-90deg);
     transform-origin: 50% 50%;
-    stroke-dasharray: 502; /* 2 * pi * 80 */
+    stroke-dasharray: 502;
     stroke-dashoffset: 502;
 }
 
@@ -88,7 +89,7 @@ h3 {
     margin-bottom: 1rem;
 }
 
-/* Botones */
+/* Botones Principales */
 .btn {
     border: none;
     padding: 1.2rem 2rem;
@@ -105,16 +106,66 @@ h3 {
 .btn-remove { background-color: transparent; border: 2px solid var(--danger); color: var(--danger); }
 .btn-text { background: none; border: none; color: var(--text-muted); text-decoration: underline; padding: 0.5rem; width: 100%; margin-top: 1rem; cursor: pointer;}
 
-/* Inputs */
-.label-small {
-    display: block;
-    color: var(--text-muted);
+/* Control de Stock */
+.stock-box {
+    background: #1e293b;
+    border: 1px solid var(--border);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.stock-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.number-input {
+    background: #334155;
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    width: 65px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.btn-action {
+    background: var(--primary);
+    border: none;
+    color: var(--bg);
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    flex-grow: 1;
+}
+
+.warning-text {
+    color: var(--danger);
     font-size: 0.85rem;
-    margin-bottom: 0.5rem;
+    font-weight: bold;
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* Inputs de Fecha */
+.input-group {
+    margin-bottom: 1.2rem;
     text-align: left;
 }
 
-.time-input, .date-input {
+.input-group label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+}
+
+.date-input {
     background: #334155;
     border: none;
     color: white;
@@ -125,28 +176,34 @@ h3 {
     font-family: inherit;
 }
 
-.input-group {
-    margin-bottom: 1rem;
-    text-align: left;
-}
-
-.input-group label {
-    display: block;
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    margin-bottom: 0.3rem;
-}
-
 .days-info {
     font-size: 0.85rem;
     color: var(--primary);
-    margin-top: 0.3rem;
+    margin-top: 0.4rem;
     font-weight: bold;
+}
+
+.label-small {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    text-align: left;
+}
+
+.time-input {
+    background: #334155;
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .divider {
     border: none;
-    border-top: 1px solid #334155;
+    border-top: 1px solid var(--border);
     margin: 2rem 0;
 }
 
@@ -171,29 +228,7 @@ h3 {
 .hist-date { color: var(--text-muted); }
 .hist-time { font-weight: bold; color: var(--primary); }
 
-/* Agregado para Control de Stock y Backup */
-.stock-box {
-    background: #1e293b;
-    border: 1px solid var(--border);
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
+/* Backup Section */
+.backup-section {
+    text-align: center;
 }
-.stock-controls {
-    display: flex;
-    gap: 10px;
-    margin-top: 5px;
-}
-.number-input {
-    background: #334155; border: none; color: white;
-    padding: 10px; border-radius: 8px; width: 60px;
-    text-align: center; font-weight: bold;
-}
-.btn-action {
-    background: var(--primary); border: none; color: var(--bg);
-    padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex-grow: 1;
-}
-.warning-text {
-    color: var(--danger); font-size: 0.85rem; font-weight: bold; margin-top: 8px;
-}
-.backup-section { text-align: center; margin-top: 10px; }

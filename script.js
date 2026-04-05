@@ -1,11 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Variables de estado
+    // 1. Variables de Estado
     let startTime = localStorage.getItem('lensesStartTime');
     let interval;
     let notificationSent = false;
-    const CIRCUMFERENCE = 502; // 2 * Math.PI * 80 (radio del SVG)
+    const CIRCUMFERENCE = 502; // 2 * Math.PI * 80
 
-    // DOM Elements - Timer
+    // 2. DOM Elements - Timer y UI
     const uiActiveState = document.getElementById('activeState');
     const uiIdleState = document.getElementById('idleState');
     const uiStartTimeDisplay = document.getElementById('startTimeDisplay');
@@ -15,20 +15,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnPut = document.getElementById('btnPut');
     const btnRemove = document.getElementById('btnRemove');
     
-    // DOM Elements - Insumos y Stock
+    // 3. DOM Elements - Insumos, Stock y Fechas
     const inputLensDate = document.getElementById('lensDate');
     const inputSolutionDate = document.getElementById('solutionDate');
+    const inputCaseDate = document.getElementById('caseDate');
+    const inputSystaneDate = document.getElementById('systaneDate');
+    
     const uiLensDays = document.getElementById('lensDaysElapsed');
     const uiSolutionDays = document.getElementById('solutionDaysElapsed');
+    const uiCaseDays = document.getElementById('caseDaysElapsed');
+    const uiSystaneDays = document.getElementById('systaneDaysElapsed');
+    
     const inputStock = document.getElementById('lensStock');
     const btnNewPair = document.getElementById('btnNewPair');
     const stockWarning = document.getElementById('stockWarning');
     
-    // DOM Elements - History
+    // 4. DOM Elements - Historial y Backup
     const historyList = document.getElementById('historyList');
     const btnClearHistory = document.getElementById('btnClearHistory');
+    const btnExport = document.getElementById('btnExport');
+    const importFile = document.getElementById('importFile');
 
-    // ---------------- LÓGICA DEL TIMER Y ANILLO ---------------- //
+    // ---------------- LÓGICA DEL TIMER ---------------- //
 
     function requestNotificationPermission() {
         if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
@@ -38,25 +46,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateUI() {
         if (startTime) {
-            uiActiveState.classList.remove('hidden');
-            uiIdleState.classList.add('hidden');
+            if (uiActiveState) uiActiveState.classList.remove('hidden');
+            if (uiIdleState) uiIdleState.classList.add('hidden');
             
             const start = new Date(startTime);
             const hours = start.getHours().toString().padStart(2, '0');
             const minutes = start.getMinutes().toString().padStart(2, '0');
-            uiStartTimeDisplay.innerText = `Puestos a las ${hours}:${minutes}`;
+            if (uiStartTimeDisplay) uiStartTimeDisplay.innerText = `Puestos a las ${hours}:${minutes}`;
             
             if (interval) clearInterval(interval);
             interval = setInterval(calculateTime, 1000);
             calculateTime(); 
         } else {
-            uiActiveState.classList.add('hidden');
-            uiIdleState.classList.remove('hidden');
+            if (uiActiveState) uiActiveState.classList.add('hidden');
+            if (uiIdleState) uiIdleState.classList.remove('hidden');
             if (interval) clearInterval(interval);
         }
     }
 
     function calculateTime() {
+        if (!startTime) return;
         const now = new Date();
         const start = new Date(startTime);
         const diff = now - start;
@@ -65,58 +74,43 @@ document.addEventListener("DOMContentLoaded", () => {
         const m = Math.floor((diff % 3600000) / 60000);
         const s = Math.floor((diff % 60000) / 1000);
 
-        uiTimer.innerText = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        if (uiTimer) uiTimer.innerText = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
         
-        // Lógica del Anillo (Máximo 10 horas = 100% relleno)
         const maxHours = 10;
         const totalSeconds = (h * 3600) + (m * 60) + s;
         const maxSeconds = maxHours * 3600;
         let percent = totalSeconds / maxSeconds;
         if (percent > 1) percent = 1;
 
-        const offset = CIRCUMFERENCE - (percent * CIRCUMFERENCE);
-        ring.style.strokeDashoffset = offset;
+        if (ring) {
+            const offset = CIRCUMFERENCE - (percent * CIRCUMFERENCE);
+            ring.style.strokeDashoffset = offset;
+            if (h < 6) ring.style.stroke = "var(--success)";
+            else if (h < 8) ring.style.stroke = "var(--warning)";
+            else ring.style.stroke = "var(--danger)";
+        }
 
-        // Colores del anillo según horas
-        if (h < 6) {
-            ring.style.stroke = "var(--success)"; // Verde
-            uiTimer.style.color = "var(--text)";
-        } else if (h < 8) {
-            ring.style.stroke = "var(--warning)"; // Amarillo
-            uiTimer.style.color = "var(--warning)";
-        } else {
-            ring.style.stroke = "var(--danger)"; // Rojo
-            uiTimer.style.color = "var(--danger)";
-            
-            // Disparar Notificación si pasaron 8h
-            if (!notificationSent && "Notification" in window && Notification.permission === "granted") {
-                new Notification("LensTracker", {
-                    body: "Llevás 8 horas con los lentes puestos. ¡Considerá darles un descanso!",
-                    icon: "icon.png"
-                });
-                notificationSent = true;
-            }
+        if (h >= 8 && !notificationSent && "Notification" in window && Notification.permission === "granted") {
+            new Notification("LensTracker", { body: "Llevás 8 horas con los lentes. ¡Dales un descanso!", icon: "icon.png" });
+            notificationSent = true;
         }
     }
 
     function putLenses() {
         requestNotificationPermission();
-        const customTime = inputCustomTime.value;
-        let start;
+        const customValue = inputCustomTime ? inputCustomTime.value : "";
+        let start = new Date();
         
-        if (customTime) {
-            start = new Date();
-            const [h, m] = customTime.split(':');
+        if (customValue) {
+            const [h, m] = customValue.split(':');
             start.setHours(parseInt(h, 10), parseInt(m, 10), 0, 0);
-            if(start > new Date()) start.setDate(start.getDate() - 1); // Si puso una hora mayor a la actual, fue ayer
-        } else {
-            start = new Date();
+            if(start > new Date()) start.setDate(start.getDate() - 1);
         }
 
         startTime = start.toISOString();
         notificationSent = false;
         localStorage.setItem('lensesStartTime', startTime);
-        inputCustomTime.value = ''; // Limpiar input
+        if (inputCustomTime) inputCustomTime.value = '';
         updateUI();
     }
 
@@ -131,74 +125,65 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ---------------- LÓGICA DE INSUMOS Y STOCK ---------------- //
 
-    function loadDatesAndStock() {
-        const lDate = localStorage.getItem('lensDate');
-        const sDate = localStorage.getItem('solutionDate');
-        let stock = localStorage.getItem('lensStock') || 0;
-        
-        inputStock.value = stock;
-        checkStockWarning(stock);
-
-        if (lDate) { 
-            inputLensDate.value = lDate; 
-            uiLensDays.innerText = `${calculateDaysElapsed(lDate)} días de uso`; 
-        }
-        if (sDate) { 
-            inputSolutionDate.value = sDate; 
-            uiSolutionDays.innerText = `${calculateDaysElapsed(sDate)} días de uso`; 
-        }
-    }
-
     function calculateDaysElapsed(dateString) {
+        if (!dateString) return "--";
         const start = new Date(dateString);
         const diffTime = Math.abs(new Date() - start);
         return Math.floor(diffTime / (1000 * 60 * 60 * 24));
     }
 
-    function checkStockWarning(stock) {
-        if (stock <= 1) {
-            stockWarning.classList.remove('hidden');
-        } else {
-            stockWarning.classList.add('hidden');
-        }
+    function loadDatesAndStock() {
+        const lDate = localStorage.getItem('lensDate');
+        const sDate = localStorage.getItem('solutionDate');
+        const cDate = localStorage.getItem('caseDate');
+        const sysDate = localStorage.getItem('systaneDate');
+        let stock = localStorage.getItem('lensStock') || 0;
+        
+        if (inputStock) inputStock.value = stock;
+        checkStockWarning(stock);
+
+        if (inputLensDate) { inputLensDate.value = lDate || ""; uiLensDays.innerText = `${calculateDaysElapsed(lDate)} días de uso`; }
+        if (inputSolutionDate) { inputSolutionDate.value = sDate || ""; uiSolutionDays.innerText = `${calculateDaysElapsed(sDate)} días de uso`; }
+        if (inputCaseDate) { inputCaseDate.value = cDate || ""; uiCaseDays.innerText = `${calculateDaysElapsed(cDate)} días de uso`; }
+        if (inputSystaneDate) { inputSystaneDate.value = sysDate || ""; uiSystaneDays.innerText = `${calculateDaysElapsed(sysDate)} días de uso`; }
     }
 
-    inputLensDate.addEventListener('change', (e) => { 
-        localStorage.setItem('lensDate', e.target.value); 
-        loadDatesAndStock(); 
-    });
-    
-    inputSolutionDate.addEventListener('change', (e) => { 
-        localStorage.setItem('solutionDate', e.target.value); 
-        loadDatesAndStock(); 
-    });
-    
-    inputStock.addEventListener('change', (e) => { 
-        localStorage.setItem('lensStock', e.target.value); 
-        checkStockWarning(e.target.value); 
-    });
+    function checkStockWarning(stock) {
+        if (!stockWarning) return;
+        if (parseInt(stock) <= 1) stockWarning.classList.remove('hidden');
+        else stockWarning.classList.add('hidden');
+    }
 
-    btnNewPair.addEventListener('click', () => {
-        let stock = parseInt(localStorage.getItem('lensStock')) || 0;
-        if (stock > 0) {
-            stock -= 1;
-            localStorage.setItem('lensStock', stock);
-            const today = new Date().toISOString().split('T')[0];
-            localStorage.setItem('lensDate', today);
-            loadDatesAndStock();
-            alert('Nuevo par en uso. Stock descontado.');
-        } else {
-            alert('El stock ya está en 0.');
-        }
-    });
+    // Listeners para cambios manuales en fechas e insumos
+    if (inputLensDate) inputLensDate.addEventListener('change', (e) => { localStorage.setItem('lensDate', e.target.value); loadDatesAndStock(); });
+    if (inputSolutionDate) inputSolutionDate.addEventListener('change', (e) => { localStorage.setItem('solutionDate', e.target.value); loadDatesAndStock(); });
+    if (inputCaseDate) inputCaseDate.addEventListener('change', (e) => { localStorage.setItem('caseDate', e.target.value); loadDatesAndStock(); });
+    if (inputSystaneDate) inputSystaneDate.addEventListener('change', (e) => { localStorage.setItem('systaneDate', e.target.value); loadDatesAndStock(); });
+    if (inputStock) inputStock.addEventListener('change', (e) => { localStorage.setItem('lensStock', e.target.value); checkStockWarning(e.target.value); });
+
+    if (btnNewPair) {
+        btnNewPair.addEventListener('click', () => {
+            let stock = parseInt(localStorage.getItem('lensStock')) || 0;
+            if (stock > 0) {
+                stock -= 1;
+                localStorage.setItem('lensStock', stock);
+                const today = new Date().toISOString().split('T')[0];
+                localStorage.setItem('lensDate', today);
+                loadDatesAndStock();
+                alert('Nuevo par en uso. Stock descontado.');
+            } else {
+                alert('El stock ya está en 0.');
+            }
+        });
+    }
 
     // ---------------- LÓGICA DEL HISTORIAL ---------------- //
 
     function saveToHistory() {
+        if (!startTime) return;
         const start = new Date(startTime);
         const end = new Date();
         const diff = end - start;
-        
         const h = Math.floor(diff / 3600000);
         const m = Math.floor((diff % 3600000) / 60000);
         
@@ -208,14 +193,15 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         let history = JSON.parse(localStorage.getItem('lensesHistory')) || [];
-        history.unshift(session); // Agregar al principio
-        if (history.length > 7) history.pop(); // Mantener solo los últimos 7
+        history.unshift(session);
+        if (history.length > 7) history.pop();
         
         localStorage.setItem('lensesHistory', JSON.stringify(history));
         renderHistory();
     }
 
     function renderHistory() {
+        if (!historyList) return;
         const history = JSON.parse(localStorage.getItem('lensesHistory')) || [];
         historyList.innerHTML = '';
         
@@ -231,55 +217,61 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    btnClearHistory.addEventListener('click', () => {
-        if(confirm('¿Borrar el historial de usos?')) {
-            localStorage.removeItem('lensesHistory');
-            renderHistory();
-        }
-    });
-
-    // ---------------- BACKUP SYSTEM (Tolerancia a fallos) ---------------- //
-
-    document.getElementById('btnExport').addEventListener('click', () => {
-        const data = {
-            lensDate: localStorage.getItem('lensDate'),
-            solutionDate: localStorage.getItem('solutionDate'),
-            lensStock: localStorage.getItem('lensStock'),
-            lensesHistory: localStorage.getItem('lensesHistory'),
-            lensesStartTime: localStorage.getItem('lensesStartTime')
-        };
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `LensTracker_Backup_${new Date().toISOString().split('T')[0]}.json`;
-        a.click();
-    });
-
-    document.getElementById('importFile').addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            try {
-                const data = JSON.parse(event.target.result);
-                Object.keys(data).forEach(key => { 
-                    if(data[key] !== null && data[key] !== undefined) {
-                        localStorage.setItem(key, data[key]); 
-                    }
-                });
-                alert('Backup restaurado correctamente.');
-                location.reload();
-            } catch (err) { 
-                alert('Archivo inválido.'); 
+    if (btnClearHistory) {
+        btnClearHistory.addEventListener('click', () => {
+            if(confirm('¿Borrar el historial de usos?')) {
+                localStorage.removeItem('lensesHistory');
+                renderHistory();
             }
-        };
-        reader.readAsText(file);
-    });
+        });
+    }
 
-    // ---------------- BINDINGS Y ARRANQUE ---------------- //
+    // ---------------- BACKUP SYSTEM (JSON) ---------------- //
 
-    btnPut.addEventListener('click', putLenses);
-    btnRemove.addEventListener('click', removeLenses);
+    if (btnExport) {
+        btnExport.addEventListener('click', () => {
+            const data = {
+                lensDate: localStorage.getItem('lensDate'),
+                solutionDate: localStorage.getItem('solutionDate'),
+                caseDate: localStorage.getItem('caseDate'),
+                systaneDate: localStorage.getItem('systaneDate'),
+                lensStock: localStorage.getItem('lensStock'),
+                lensesHistory: localStorage.getItem('lensesHistory'),
+                lensesStartTime: localStorage.getItem('lensesStartTime')
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = `LensTracker_Backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        });
+    }
+
+    if (importFile) {
+        importFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    Object.keys(data).forEach(key => { 
+                        if(data[key] !== null && data[key] !== undefined) {
+                            localStorage.setItem(key, data[key]); 
+                        }
+                    });
+                    alert('Backup restaurado correctamente.');
+                    location.reload();
+                } catch (err) { alert('Archivo inválido.'); }
+            };
+            reader.readAsText(file);
+        });
+    }
+
+    // ---------------- ARRANQUE ---------------- //
+
+    if (btnPut) btnPut.addEventListener('click', putLenses);
+    if (btnRemove) btnRemove.addEventListener('click', removeLenses);
 
     updateUI();
     loadDatesAndStock();
