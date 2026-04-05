@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LensTracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="data:application/json;base64,ewogICJkZWZhdWx0X2xvY2FsZSI6ICJlcyIsCiAgIm5hbWUiOiAiTGVuc1RyYWNrZXIiLAogICJzaG9ydF9uYW1lIjogIkxlbnNlcyIsCiAgImRlc2NyaXB0aW9uIjogIkNvbnRyb2wgZGUgdGllbXBvIGRlIGxlbnRlcyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzBmMTcyMCIsCiAgInRoZW1lX2NvbG9yIjogIiMwZmxmYjUiCn0=">
+</head>
+<body>
+    <div class="container">
+        <h1>LensTracker</h1>
+        
+        <div id="activeState" class="hidden">
+            <div class="status-box">
+                <div id="startTimeDisplay">Puestos a las --:--</div>
+                <div id="timer">00:00:00</div>
+                <p>Tiempo transcurrido</p>
+            </div>
+            <button class="btn btn-remove" id="btnRemove">Me los saqué</button>
+        </div>
+
+        <div id="idleState">
+            <p>No tenés los lentes puestos</p>
+            <button class="btn btn-put" id="btnPut">Me los puse AHORA</button>
+            <input type="time" id="customTime" class="time-input" aria-label="Ingresar hora manual">
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
