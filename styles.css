@@ -2,55 +2,93 @@
     --bg: #0f172a;
     --card: #1e293b;
     --primary: #38bdf8;
-    --accent: #fb7185;
+    --success: #4ade80;
+    --warning: #facc15;
+    --danger: #fb7185;
     --text: #f8fafc;
+    --text-muted: #94a3b8;
 }
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background-color: var(--bg);
     color: var(--text);
+    margin: 0;
+    padding: 2rem 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: 100vh;
-    margin: 0;
-    overflow: hidden;
+    min-height: 100vh;
+    box-sizing: border-box;
 }
 
 .container {
     width: 90%;
     max-width: 400px;
-    text-align: center;
-    padding: 2rem;
     background: var(--card);
     border-radius: 24px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    padding: 2rem;
+    box-sizing: border-box;
 }
 
 h1 {
     font-size: 1.5rem;
-    margin-bottom: 2rem;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
     color: var(--primary);
+    text-align: center;
 }
 
-.status-box {
-    margin-bottom: 2rem;
+h3 {
+    font-size: 1.1rem;
+    color: var(--text);
+    margin-bottom: 1rem;
+    text-align: left;
 }
 
-#timer {
-    font-size: 3rem;
+.hidden { display: none !important; }
+
+/* Anillo y Timer */
+.ring-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 1.5rem auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.progress-ring__circle {
+    transition: stroke-dashoffset 1s linear, stroke 0.5s ease;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    stroke-dasharray: 502; /* 2 * pi * 80 */
+    stroke-dashoffset: 502;
+}
+
+.timer-text {
+    font-size: 2.2rem;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
-    margin: 1rem 0;
+    z-index: 10;
 }
 
 #startTimeDisplay {
-    color: #94a3b8;
+    color: var(--text-muted);
     font-size: 0.9rem;
+    text-align: center;
+    margin-bottom: 1rem;
 }
 
+/* Botones */
 .btn {
     border: none;
     padding: 1.2rem 2rem;
@@ -60,35 +98,75 @@ h1 {
     width: 100%;
     cursor: pointer;
     transition: transform 0.1s;
-    margin-top: 1rem;
 }
 
-.btn:active {
-    transform: scale(0.98);
+.btn:active { transform: scale(0.98); }
+.btn-put { background-color: var(--primary); color: var(--bg); margin-bottom: 1rem; }
+.btn-remove { background-color: transparent; border: 2px solid var(--danger); color: var(--danger); }
+.btn-text { background: none; border: none; color: var(--text-muted); text-decoration: underline; padding: 0.5rem; width: 100%; margin-top: 1rem; cursor: pointer;}
+
+/* Inputs */
+.label-small {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    text-align: left;
 }
 
-.btn-put {
-    background-color: var(--primary);
-    color: var(--bg);
-}
-
-.btn-remove {
-    background-color: transparent;
-    border: 2px solid var(--accent);
-    color: var(--accent);
-}
-
-.time-input {
-    margin-top: 1rem;
+.time-input, .date-input {
     background: #334155;
     border: none;
     color: white;
-    padding: 8px;
+    padding: 10px;
     border-radius: 8px;
     width: 100%;
     box-sizing: border-box;
+    font-family: inherit;
 }
 
-.hidden {
-    display: none;
+.input-group {
+    margin-bottom: 1rem;
+    text-align: left;
 }
+
+.input-group label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.3rem;
+}
+
+.days-info {
+    font-size: 0.85rem;
+    color: var(--primary);
+    margin-top: 0.3rem;
+    font-weight: bold;
+}
+
+.divider {
+    border: none;
+    border-top: 1px solid #334155;
+    margin: 2rem 0;
+}
+
+/* Historial */
+#historyList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+}
+
+#historyList li {
+    background: #334155;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.hist-date { color: var(--text-muted); }
+.hist-time { font-weight: bold; color: var(--primary); }

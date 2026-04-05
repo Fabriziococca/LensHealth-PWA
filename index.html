@@ -6,14 +6,10 @@
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <title>LensTracker</title>
-
+    <title>LensTracker V2</title>
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
-
     <link rel="stylesheet" href="styles.css">
-
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
@@ -24,25 +20,54 @@
         <div id="activeState" class="hidden">
             <div class="status-box">
                 <div id="startTimeDisplay">Puestos a las --:--</div>
-                <div id="timer">00:00:00</div>
-                <p>Tiempo transcurrido</p>
+                
+                <div class="ring-container">
+                    <svg class="progress-ring" width="200" height="200">
+                        <circle class="progress-ring__circle-bg" stroke="#334155" stroke-width="12" fill="transparent" r="80" cx="100" cy="100"/>
+                        <circle id="progressRing" class="progress-ring__circle" stroke="#38bdf8" stroke-width="12" fill="transparent" r="80" cx="100" cy="100"/>
+                    </svg>
+                    <div class="timer-text" id="timer">00:00:00</div>
+                </div>
+
             </div>
             <button class="btn btn-remove" id="btnRemove">Me los saqué</button>
         </div>
 
         <div id="idleState">
-            <p>No tenés los lentes puestos</p>
             <button class="btn btn-put" id="btnPut">Me los puse AHORA</button>
-            
             <div class="manual-entry">
-                <label for="customTime">¿Te los pusiste antes?</label>
+                <label for="customTime" class="label-small">Ingreso manual (Opcional):</label>
                 <input type="time" id="customTime" class="time-input">
             </div>
         </div>
+
+        <hr class="divider">
+
+        <div class="dates-section">
+            <h3>Gestión de Insumos</h3>
+            <div class="input-group">
+                <label>Lentes abiertos el:</label>
+                <input type="date" id="lensDate" class="date-input">
+                <div id="lensDaysElapsed" class="days-info">-- días de uso</div>
+            </div>
+            <div class="input-group">
+                <label>Líquido abierto el:</label>
+                <input type="date" id="solutionDate" class="date-input">
+                <div id="solutionDaysElapsed" class="days-info">-- días de uso</div>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="history-section">
+            <h3>Últimos 7 usos</h3>
+            <ul id="historyList"></ul>
+            <button id="btnClearHistory" class="btn-text">Borrar historial</button>
+        </div>
+
     </div>
 
     <script src="script.js"></script>
-
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
