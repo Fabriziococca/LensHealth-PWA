@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let notificationSent = false;
     const CIRCUMFERENCE = 502; // 2 * Math.PI * 80 (radio del SVG)
 
-    // DOM Elements
+    // DOM Elements - Timer
     const uiActiveState = document.getElementById('activeState');
     const uiIdleState = document.getElementById('idleState');
     const uiStartTimeDisplay = document.getElementById('startTimeDisplay');
@@ -15,13 +15,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnPut = document.getElementById('btnPut');
     const btnRemove = document.getElementById('btnRemove');
     
-    // Insumos Elements
+    // DOM Elements - Insumos y Stock
     const inputLensDate = document.getElementById('lensDate');
     const inputSolutionDate = document.getElementById('solutionDate');
     const uiLensDays = document.getElementById('lensDaysElapsed');
     const uiSolutionDays = document.getElementById('solutionDaysElapsed');
+    const inputStock = document.getElementById('lensStock');
+    const btnNewPair = document.getElementById('btnNewPair');
+    const stockWarning = document.getElementById('stockWarning');
     
-    // History Elements
+    // DOM Elements - History
     const historyList = document.getElementById('historyList');
     const btnClearHistory = document.getElementById('btnClearHistory');
 
@@ -126,37 +129,67 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ---------------- LÓGICA DE INSUMOS ---------------- //
+    // ---------------- LÓGICA DE INSUMOS Y STOCK ---------------- //
 
-    function loadDates() {
+    function loadDatesAndStock() {
         const lDate = localStorage.getItem('lensDate');
         const sDate = localStorage.getItem('solutionDate');
+        let stock = localStorage.getItem('lensStock') || 0;
         
-        if (lDate) {
-            inputLensDate.value = lDate;
-            uiLensDays.innerText = `${calculateDaysElapsed(lDate)} días de uso`;
+        inputStock.value = stock;
+        checkStockWarning(stock);
+
+        if (lDate) { 
+            inputLensDate.value = lDate; 
+            uiLensDays.innerText = `${calculateDaysElapsed(lDate)} días de uso`; 
         }
-        if (sDate) {
-            inputSolutionDate.value = sDate;
-            uiSolutionDays.innerText = `${calculateDaysElapsed(sDate)} días de uso`;
+        if (sDate) { 
+            inputSolutionDate.value = sDate; 
+            uiSolutionDays.innerText = `${calculateDaysElapsed(sDate)} días de uso`; 
         }
     }
 
     function calculateDaysElapsed(dateString) {
         const start = new Date(dateString);
-        const now = new Date();
-        const diffTime = Math.abs(now - start);
+        const diffTime = Math.abs(new Date() - start);
         return Math.floor(diffTime / (1000 * 60 * 60 * 24));
     }
 
-    inputLensDate.addEventListener('change', (e) => {
-        localStorage.setItem('lensDate', e.target.value);
-        loadDates();
+    function checkStockWarning(stock) {
+        if (stock <= 1) {
+            stockWarning.classList.remove('hidden');
+        } else {
+            stockWarning.classList.add('hidden');
+        }
+    }
+
+    inputLensDate.addEventListener('change', (e) => { 
+        localStorage.setItem('lensDate', e.target.value); 
+        loadDatesAndStock(); 
+    });
+    
+    inputSolutionDate.addEventListener('change', (e) => { 
+        localStorage.setItem('solutionDate', e.target.value); 
+        loadDatesAndStock(); 
+    });
+    
+    inputStock.addEventListener('change', (e) => { 
+        localStorage.setItem('lensStock', e.target.value); 
+        checkStockWarning(e.target.value); 
     });
 
-    inputSolutionDate.addEventListener('change', (e) => {
-        localStorage.setItem('solutionDate', e.target.value);
-        loadDates();
+    btnNewPair.addEventListener('click', () => {
+        let stock = parseInt(localStorage.getItem('lensStock')) || 0;
+        if (stock > 0) {
+            stock -= 1;
+            localStorage.setItem('lensStock', stock);
+            const today = new Date().toISOString().split('T')[0];
+            localStorage.setItem('lensDate', today);
+            loadDatesAndStock();
+            alert('Nuevo par en uso. Stock descontado.');
+        } else {
+            alert('El stock ya está en 0.');
+        }
     });
 
     // ---------------- LÓGICA DEL HISTORIAL ---------------- //
@@ -205,12 +238,50 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // ---------------- BACKUP SYSTEM (Tolerancia a fallos) ---------------- //
+
+    document.getElementById('btnExport').addEventListener('click', () => {
+        const data = {
+            lensDate: localStorage.getItem('lensDate'),
+            solutionDate: localStorage.getItem('solutionDate'),
+            lensStock: localStorage.getItem('lensStock'),
+            lensesHistory: localStorage.getItem('lensesHistory'),
+            lensesStartTime: localStorage.getItem('lensesStartTime')
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `LensTracker_Backup_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+    });
+
+    document.getElementById('importFile').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            try {
+                const data = JSON.parse(event.target.result);
+                Object.keys(data).forEach(key => { 
+                    if(data[key] !== null && data[key] !== undefined) {
+                        localStorage.setItem(key, data[key]); 
+                    }
+                });
+                alert('Backup restaurado correctamente.');
+                location.reload();
+            } catch (err) { 
+                alert('Archivo inválido.'); 
+            }
+        };
+        reader.readAsText(file);
+    });
+
     // ---------------- BINDINGS Y ARRANQUE ---------------- //
 
     btnPut.addEventListener('click', putLenses);
     btnRemove.addEventListener('click', removeLenses);
 
     updateUI();
-    loadDates();
+    loadDatesAndStock();
     renderHistory();
 });

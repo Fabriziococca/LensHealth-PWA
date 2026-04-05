@@ -4,23 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0f172a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>LensTracker V2</title>
+    <title>LensTracker V3</title>
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
-
     <div class="container">
         <h1>LensTracker</h1>
         
         <div id="activeState" class="hidden">
             <div class="status-box">
                 <div id="startTimeDisplay">Puestos a las --:--</div>
-                
                 <div class="ring-container">
                     <svg class="progress-ring" width="200" height="200">
                         <circle class="progress-ring__circle-bg" stroke="#334155" stroke-width="12" fill="transparent" r="80" cx="100" cy="100"/>
@@ -28,7 +24,6 @@
                     </svg>
                     <div class="timer-text" id="timer">00:00:00</div>
                 </div>
-
             </div>
             <button class="btn btn-remove" id="btnRemove">Me los saqué</button>
         </div>
@@ -36,7 +31,7 @@
         <div id="idleState">
             <button class="btn btn-put" id="btnPut">Me los puse AHORA</button>
             <div class="manual-entry">
-                <label for="customTime" class="label-small">Ingreso manual (Opcional):</label>
+                <label for="customTime" class="label-small">Ingreso manual:</label>
                 <input type="time" id="customTime" class="time-input">
             </div>
         </div>
@@ -44,9 +39,19 @@
         <hr class="divider">
 
         <div class="dates-section">
-            <h3>Gestión de Insumos</h3>
+            <h3>Control de Insumos</h3>
+            
+            <div class="stock-box">
+                <label>Cajas/Pares en Stock:</label>
+                <div class="stock-controls">
+                    <input type="number" id="lensStock" class="number-input" min="0" value="0">
+                    <button class="btn-action" id="btnNewPair">📦 Abrir Nuevo Par</button>
+                </div>
+                <p id="stockWarning" class="warning-text hidden">¡Atención! Queda 1 par o menos. Pedir recambio.</p>
+            </div>
+
             <div class="input-group">
-                <label>Lentes abiertos el:</label>
+                <label>Lentes en uso desde:</label>
                 <input type="date" id="lensDate" class="date-input">
                 <div id="lensDaysElapsed" class="days-info">-- días de uso</div>
             </div>
@@ -59,21 +64,12 @@
 
         <hr class="divider">
 
-        <div class="history-section">
-            <h3>Últimos 7 usos</h3>
-            <ul id="historyList"></ul>
-            <button id="btnClearHistory" class="btn-text">Borrar historial</button>
+        <div class="backup-section">
+            <button id="btnExport" class="btn-text">Descargar Backup (JSON)</button>
+            <label for="importFile" class="btn-text" style="cursor:pointer; display:block;">Importar Backup</label>
+            <input type="file" id="importFile" class="hidden" accept=".json">
         </div>
-
     </div>
-
     <script src="script.js"></script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW no registrado', err));
-            });
-        }
-    </script>
 </body>
 </html>

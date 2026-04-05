@@ -170,3 +170,30 @@ h3 {
 
 .hist-date { color: var(--text-muted); }
 .hist-time { font-weight: bold; color: var(--primary); }
+
+/* Agregado para Control de Stock y Backup */
+.stock-box {
+    background: #1e293b;
+    border: 1px solid var(--border);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+.stock-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+}
+.number-input {
+    background: #334155; border: none; color: white;
+    padding: 10px; border-radius: 8px; width: 60px;
+    text-align: center; font-weight: bold;
+}
+.btn-action {
+    background: var(--primary); border: none; color: var(--bg);
+    padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex-grow: 1;
+}
+.warning-text {
+    color: var(--danger); font-size: 0.85rem; font-weight: bold; margin-top: 8px;
+}
+.backup-section { text-align: center; margin-top: 10px; }
