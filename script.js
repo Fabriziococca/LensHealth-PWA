@@ -5,6 +5,14 @@ document.addEventListener("DOMContentLoaded", () => {
     let notificationSent = false;
     const CIRCUMFERENCE = 502; // 2 * Math.PI * 80
 
+    // Límites de descarte (Días) para el Semáforo
+    const LIMITS = {
+        lenses: 60,
+        solution: 90,
+        case: 90,
+        systane: 90
+    };
+
     // 2. DOM Elements - Timer y UI
     const uiActiveState = document.getElementById('activeState');
     const uiIdleState = document.getElementById('idleState');
@@ -123,7 +131,24 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ---------------- LÓGICA DE INSUMOS Y STOCK ---------------- //
+    // ---------------- LÓGICA DE INSUMOS, STOCK Y COLORES ---------------- //
+
+    function updateLabelStyle(element, days, limit) {
+        if (!element) return;
+        if (days === "--") {
+            element.style.color = "var(--primary)"; // Color default si no hay fecha
+            return;
+        }
+        
+        const daysInt = parseInt(days);
+        if (daysInt >= limit) {
+            element.style.color = "var(--danger)"; // Rojo: Vencido
+        } else if (daysInt >= limit * 0.85) {
+            element.style.color = "var(--warning)"; // Amarillo: Cerca del límite (85%)
+        } else {
+            element.style.color = "var(--success)"; // Verde: En regla
+        }
+    }
 
     function calculateDaysElapsed(dateString) {
         if (!dateString) return "--";
@@ -142,10 +167,37 @@ document.addEventListener("DOMContentLoaded", () => {
         if (inputStock) inputStock.value = stock;
         checkStockWarning(stock);
 
-        if (inputLensDate) { inputLensDate.value = lDate || ""; uiLensDays.innerText = `${calculateDaysElapsed(lDate)} días de uso`; }
-        if (inputSolutionDate) { inputSolutionDate.value = sDate || ""; uiSolutionDays.innerText = `${calculateDaysElapsed(sDate)} días de uso`; }
-        if (inputCaseDate) { inputCaseDate.value = cDate || ""; uiCaseDays.innerText = `${calculateDaysElapsed(cDate)} días de uso`; }
-        if (inputSystaneDate) { inputSystaneDate.value = sysDate || ""; uiSystaneDays.innerText = `${calculateDaysElapsed(sysDate)} días de uso`; }
+        // Lentes
+        const lDays = calculateDaysElapsed(lDate);
+        if (inputLensDate) inputLensDate.value = lDate || "";
+        if (uiLensDays) {
+            uiLensDays.innerText = `${lDays} días de uso`;
+            updateLabelStyle(uiLensDays, lDays, LIMITS.lenses);
+        }
+
+        // Líquido
+        const sDays = calculateDaysElapsed(sDate);
+        if (inputSolutionDate) inputSolutionDate.value = sDate || "";
+        if (uiSolutionDays) {
+            uiSolutionDays.innerText = `${sDays} días de uso`;
+            updateLabelStyle(uiSolutionDays, sDays, LIMITS.solution);
+        }
+
+        // Estuche
+        const cDays = calculateDaysElapsed(cDate);
+        if (inputCaseDate) inputCaseDate.value = cDate || "";
+        if (uiCaseDays) {
+            uiCaseDays.innerText = `${cDays} días de uso`;
+            updateLabelStyle(uiCaseDays, cDays, LIMITS.case);
+        }
+
+        // Systane
+        const sysDays = calculateDaysElapsed(sysDate);
+        if (inputSystaneDate) inputSystaneDate.value = sysDate || "";
+        if (uiSystaneDays) {
+            uiSystaneDays.innerText = `${sysDays} días de uso`;
+            updateLabelStyle(uiSystaneDays, sysDays, LIMITS.systane);
+        }
     }
 
     function checkStockWarning(stock) {

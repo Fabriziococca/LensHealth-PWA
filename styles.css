@@ -178,9 +178,10 @@ h3 {
 
 .days-info {
     font-size: 0.85rem;
-    color: var(--primary);
     margin-top: 0.4rem;
     font-weight: bold;
+    color: var(--primary); /* Color inicial, luego lo pisa JS */
+    transition: color 0.3s ease; /* Transición suave del semáforo */
 }
 
 .label-small {
