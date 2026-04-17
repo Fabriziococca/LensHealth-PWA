@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const uiTimer = document.getElementById('timer');
     const ring = document.getElementById('progressRing');
     const inputCustomTime = document.getElementById('customTime');
+    const inputCustomEndTime = document.getElementById('customEndTime');
     const btnPut = document.getElementById('btnPut');
     const btnRemove = document.getElementById('btnRemove');
     
@@ -123,10 +124,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function removeLenses() {
+        const customEndValue = inputCustomEndTime ? inputCustomEndTime.value : "";
+        let end = new Date();
+        
+        if (customEndValue && startTime) {
+            const [h, m] = customEndValue.split(':');
+            const startObj = new Date(startTime);
+            end = new Date(startObj);
+            end.setHours(parseInt(h, 10), parseInt(m, 10), 0, 0);
+            
+            if (end < startObj) {
+                end.setDate(end.getDate() + 1);
+            }
+            
+            if (end > new Date()) {
+                end = new Date();
+            }
+        }
+
         if (confirm('¿Te sacaste los lentes?')) {
-            saveToHistory();
+            saveToHistory(end);
             localStorage.removeItem('lensesStartTime');
             startTime = null;
+            if (inputCustomEndTime) inputCustomEndTime.value = '';
             updateUI();
         }
     }
@@ -231,11 +251,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ---------------- LÓGICA DEL HISTORIAL ---------------- //
 
-    function saveToHistory() {
+    function saveToHistory(endTime = new Date()) {
         if (!startTime) return;
         const start = new Date(startTime);
-        const end = new Date();
-        const diff = end - start;
+        const end = endTime;
+        let diff = end - start;
+        if (diff < 0) diff = 0;
         const h = Math.floor(diff / 3600000);
         const m = Math.floor((diff % 3600000) / 60000);
         
@@ -262,10 +283,28 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        history.forEach(item => {
+        history.forEach((item, index) => {
             const li = document.createElement('li');
-            li.innerHTML = `<span class="hist-date">${item.date}</span> <span class="hist-time">${item.duration}</span>`;
+            li.innerHTML = `
+                <div style="display: flex; gap: 10px; flex-grow: 1; justify-content: space-between; align-items: center;">
+                    <span class="hist-date">${item.date}</span>
+                    <span class="hist-time">${item.duration}</span>
+                </div>
+                <button class="btn-delete-entry" data-index="${index}" title="Borrar registro">❌</button>
+            `;
             historyList.appendChild(li);
+        });
+
+        document.querySelectorAll('.btn-delete-entry').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const index = e.target.closest('button').getAttribute('data-index');
+                if (confirm('¿Borrar este registro?')) {
+                    let history = JSON.parse(localStorage.getItem('lensesHistory')) || [];
+                    history.splice(index, 1);
+                    localStorage.setItem('lensesHistory', JSON.stringify(history));
+                    renderHistory();
+                }
+            });
         });
     }
 

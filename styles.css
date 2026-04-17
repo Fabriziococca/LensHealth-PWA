@@ -229,6 +229,21 @@ h3 {
 .hist-date { color: var(--text-muted); }
 .hist-time { font-weight: bold; color: var(--primary); }
 
+.btn-delete-entry {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0 0 0 10px;
+    margin: 0;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.btn-delete-entry:hover {
+    opacity: 1;
+}
+
 /* Backup Section */
 .backup-section {
     text-align: center;
