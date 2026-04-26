@@ -10,7 +10,9 @@ document.addEventListener("DOMContentLoaded", () => {
         lenses: 60,
         solution: 90,
         case: 90,
-        systane: 90
+        systane: 90,
+        clothWash: 15,
+        clothChange: 270
     };
 
     // 2. DOM Elements - Timer y UI
@@ -29,11 +31,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const inputSolutionDate = document.getElementById('solutionDate');
     const inputCaseDate = document.getElementById('caseDate');
     const inputSystaneDate = document.getElementById('systaneDate');
+    const inputClothWashDate = document.getElementById('clothWashDate');
+    const inputClothChangeDate = document.getElementById('clothChangeDate');
     
     const uiLensDays = document.getElementById('lensDaysElapsed');
     const uiSolutionDays = document.getElementById('solutionDaysElapsed');
     const uiCaseDays = document.getElementById('caseDaysElapsed');
     const uiSystaneDays = document.getElementById('systaneDaysElapsed');
+    const uiClothWashDays = document.getElementById('clothWashDaysElapsed');
+    const uiClothChangeDays = document.getElementById('clothChangeDaysElapsed');
     
     const inputStock = document.getElementById('lensStock');
     const btnNewPair = document.getElementById('btnNewPair');
@@ -182,6 +188,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const sDate = localStorage.getItem('solutionDate');
         const cDate = localStorage.getItem('caseDate');
         const sysDate = localStorage.getItem('systaneDate');
+        const cwDate = localStorage.getItem('clothWashDate');
+        const ccDate = localStorage.getItem('clothChangeDate');
         let stock = localStorage.getItem('lensStock') || 0;
         
         if (inputStock) inputStock.value = stock;
@@ -218,6 +226,22 @@ document.addEventListener("DOMContentLoaded", () => {
             uiSystaneDays.innerText = `${sysDays} días de uso`;
             updateLabelStyle(uiSystaneDays, sysDays, LIMITS.systane);
         }
+
+        // Pañuelo Lavado
+        const cwDays = calculateDaysElapsed(cwDate);
+        if (inputClothWashDate) inputClothWashDate.value = cwDate || "";
+        if (uiClothWashDays) {
+            uiClothWashDays.innerText = `${cwDays} días desde lavado`;
+            updateLabelStyle(uiClothWashDays, cwDays, LIMITS.clothWash);
+        }
+
+        // Pañuelo Cambio
+        const ccDays = calculateDaysElapsed(ccDate);
+        if (inputClothChangeDate) inputClothChangeDate.value = ccDate || "";
+        if (uiClothChangeDays) {
+            uiClothChangeDays.innerText = `${ccDays} días de uso`;
+            updateLabelStyle(uiClothChangeDays, ccDays, LIMITS.clothChange);
+        }
     }
 
     function checkStockWarning(stock) {
@@ -231,6 +255,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (inputSolutionDate) inputSolutionDate.addEventListener('change', (e) => { localStorage.setItem('solutionDate', e.target.value); loadDatesAndStock(); });
     if (inputCaseDate) inputCaseDate.addEventListener('change', (e) => { localStorage.setItem('caseDate', e.target.value); loadDatesAndStock(); });
     if (inputSystaneDate) inputSystaneDate.addEventListener('change', (e) => { localStorage.setItem('systaneDate', e.target.value); loadDatesAndStock(); });
+    if (inputClothWashDate) inputClothWashDate.addEventListener('change', (e) => { localStorage.setItem('clothWashDate', e.target.value); loadDatesAndStock(); });
+    if (inputClothChangeDate) inputClothChangeDate.addEventListener('change', (e) => { localStorage.setItem('clothChangeDate', e.target.value); loadDatesAndStock(); });
     if (inputStock) inputStock.addEventListener('change', (e) => { localStorage.setItem('lensStock', e.target.value); checkStockWarning(e.target.value); });
 
     if (btnNewPair) {
@@ -326,6 +352,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 solutionDate: localStorage.getItem('solutionDate'),
                 caseDate: localStorage.getItem('caseDate'),
                 systaneDate: localStorage.getItem('systaneDate'),
+                clothWashDate: localStorage.getItem('clothWashDate'),
+                clothChangeDate: localStorage.getItem('clothChangeDate'),
                 lensStock: localStorage.getItem('lensStock'),
                 lensesHistory: localStorage.getItem('lensesHistory'),
                 lensesStartTime: localStorage.getItem('lensesStartTime')
